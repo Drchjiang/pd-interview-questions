@@ -5,7 +5,7 @@
 [![pages-build-deployment](https://github.com/Drchjiang/pd-interview-questions/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/Drchjiang/pd-interview-questions/deployments/activity_log?environment=github-pages)
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)](LICENSE)
 
-在线刷题：[https://Drchjiang.github.io/pd-interview-questions](https://Drchjiang.github.io/pd-interview-questions)
+在线刷题：[https://drchjiang.github.io/pd-interview-questions](https://drchjiang.github.io/pd-interview-questions)
 
 ---
 
