@@ -1,239 +1,377 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后端面试刷题</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PD 后端面试 · 刷题</title>
+    <!-- 使用更优雅的字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
+        /* --- 1. 全局重置与基调 --- */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fb;
+            /* 温暖的极简白，而非死白 */
+            color: #1e1e1e;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            min-height: 100vh;
             line-height: 1.6;
-            padding: 20px;
+            -webkit-font-smoothing: antialiased;
         }
+
+        /* --- 2. 主容器：干净、留白、有边界 --- */
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 20px;
+            max-width: 880px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 24px;
+            /* 克制的圆角 */
+            padding: 48px 56px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            /* 极淡的阴影，而非重阴影 */
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            height: fit-content;
+            transition: all 0.2s ease;
         }
-        /* 顶部信息 */
+
+        /* --- 3. 头部：极简主义导航 --- */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 40px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            gap: 16px;
         }
+
         .progress {
-            font-size: 0.9rem;
-            background: #eef2ff;
-            padding: 4px 10px;
-            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 14px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
         }
+
         .controls {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 6px;
         }
+
+        /* 按钮：无边框、低饱和、微交互 */
         .btn {
-            padding: 8px 14px;
+            padding: 8px 16px;
             border: none;
-            background: #4a90d9;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn:hover {
-            background: #357abd;
-        }
-        .btn-secondary {
-            background: #6c757d;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        .btn-random {
-            background: #28a745;
-        }
-        .btn-random:hover {
-            background: #218838;
-        }
-        /* 题目区域 */
-        .question {
-            margin-bottom: 20px;
-        }
-        .question h2 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        .card {
-            border: 1px solid #e0e0e0;
+            background: transparent;
+            color: #4b5563;
             border-radius: 8px;
-            margin-bottom: 10px;
-            overflow: hidden;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
         }
+
+        .btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .btn-primary {
+            background: #111827;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #374151;
+        }
+
+        /* --- 4. 搜索框：融入背景，而非突兀 --- */
+        .search-box {
+            margin-bottom: 32px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fafafa;
+            transition: border 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            color: #1f2937;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #9ca3af;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .search-box input::placeholder {
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        /* --- 5. 题目卡片：信息层级清晰，无干扰 --- */
+        .question {
+            margin-bottom: 32px;
+        }
+
+        .question h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+            line-height: 1.4;
+        }
+
+        /* 卡片：折叠面板，极简风格 */
+        .card {
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background: #fcfcfd;
+            transition: border 0.2s;
+        }
+
+        .card:hover {
+            border-color: #e5e7eb;
+        }
+
         .card-header {
-            background: #f8f9fa;
-            padding: 10px 15px;
+            padding: 16px 20px;
             cursor: pointer;
             user-select: none;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: #4b5563;
+            transition: background 0.15s;
         }
+
+        .card-header:hover {
+            background: #f8f9fa;
+        }
+
         .card-header h3 {
-            font-size: 1rem;
-            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
         }
+
         .arrow {
-            transition: transform 0.2s;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 12px;
+            color: #9ca3af;
         }
+
         .arrow.open {
             transform: rotate(90deg);
         }
+
         .card-body {
-            padding: 15px;
+            padding: 0 20px 20px 20px;
             display: none;
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.7;
         }
+
         .card-body.show {
             display: block;
+            animation: fadeSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .code-block {
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: Consolas, Monaco, monospace;
-            overflow-x: auto;
-            margin-top: 10px;
+
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        /* 底部导航 */
+
+        /* 答案和解析的文本样式 */
+        .answer-text,
+        .explanation-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .explanation-text {
+            color: #4b5563;
+            font-size: 13.5px;
+            background: #f9fafb;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border-left: 3px solid #d1d5db;
+        }
+
+        /* --- 6. 底部导航：极简分割 --- */
         .bottom-nav {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-top: 8px;
+            padding-top: 24px;
+            border-top: 1px solid #f3f4f6;
         }
-        .search-box {
-            margin-bottom: 20px;
+
+        .bottom-nav .btn {
+            padding: 10px 20px;
         }
-        .search-box input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        /* 响应式 */
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .controls { width: 100%; justify-content: space-between; }
-            .bottom-nav { flex-direction: column; gap: 10px; }
-            .btn { width: 100%; }
+
+        /* --- 7. 响应式：移动端适配 --- */
+        @media (max-width: 640px) {
+            body {
+                padding: 16px 12px;
+            }
+            .container {
+                padding: 24px 18px;
+                border-radius: 16px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .controls {
+                justify-content: space-between;
+            }
+            .question h2 {
+                font-size: 17px;
+            }
+            .card-header {
+                padding: 14px 16px;
+                font-size: 13px;
+            }
+            .card-body {
+                padding: 0 16px 16px 16px;
+                font-size: 13px;
+            }
+            .bottom-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .bottom-nav .btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 头部 -->
         <div class="header">
-            <div class="progress" id="progress">当前: 1 / 162</div>
+            <div class="progress" id="progress">1 / 162</div>
             <div class="controls">
-                <button class="btn btn-secondary" onclick="prevQuestion()">上一题</button>
-                <button class="btn" onclick="nextQuestion()">下一题</button>
-                <button class="btn btn-random" onclick="randomQuestion()">随机</button>
+                <button class="btn" onclick="prevQuestion()">← 上一题</button>
+                <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+                <button class="btn" onclick="randomQuestion()">🎲 随机</button>
             </div>
         </div>
 
+        <!-- 搜索 -->
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜索题目关键词...">
+            <input type="text" id="searchInput" placeholder="搜索题目、答案或解析..." />
         </div>
 
-        <div class="question" id="questionContainer">
-            <!-- 题目内容动态注入 -->
-        </div>
+        <!-- 题目区域 -->
+        <div class="question" id="questionContainer"></div>
 
+        <!-- 底部导航 -->
         <div class="bottom-nav">
-            <button class="btn btn-secondary" onclick="prevQuestion()">← 上一题</button>
-            <button class="btn" onclick="nextQuestion()">下一题 →</button>
+            <button class="btn" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
         </div>
     </div>
+
     <script src="./questions.js"></script>
     <script>
-        // 数据已在外部 questions.js 中通过 const questions = [...] 声明，此处直接使用即可
-
-        // 当前索引
+        // --- 数据已在 questions.js 中 ---
         let currentIndex = 0;
 
-        function init() {
-    // 数据已经在全局变量 questions 中了，直接排序并渲染
-    questions.sort((a, b) => a.id - b.id);
-    renderQuestion();
-         }
+        // 按 id 排序（防止 json 顺序错乱）
+        if (typeof questions !== 'undefined') {
+            questions.sort((a, b) => a.id - b.id);
+        }
 
-        // 渲染当前题目
         function renderQuestion() {
-            if (questions.length === 0) return;
+            if (!questions || questions.length === 0) return;
             const q = questions[currentIndex];
             const container = document.getElementById('questionContainer');
+
             container.innerHTML = `
-                <h2>Q${q.id}: ${q.question}</h2>
+                <h2>${q.id}. ${q.question}</h2>
                 <div class="card">
-                    <div class="card-header" onclick="toggleAnswer(this)">
-                        <h3>答案</h3>
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3>📖 答案</h3>
                         <span class="arrow">▶</span>
                     </div>
                     <div class="card-body">
-                        <div class="answer-text">${formatText(q.answer)}</div>
+                        <div class="answer-text">${escapeHtml(q.answer)}</div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header" onclick="toggleExplanation(this)">
-                        <h3>解析</h3>
+                    <div class="card-header" onclick="toggleCard(this)">
+                        <h3>🔍 解析</h3>
                         <span class="arrow">▶</span>
                     </div>
                     <div class="card-body">
-                        <div class="explanation-text">${formatText(q.explanation || '暂无解析')}</div>
+                        <div class="explanation-text">${escapeHtml(q.explanation || '暂无解析')}</div>
                     </div>
                 </div>
             `;
-            // 更新进度
-            document.getElementById('progress').textContent = `当前: ${currentIndex + 1} / ${questions.length}`;
+
+            document.getElementById('progress').textContent = `${currentIndex + 1} / ${questions.length}`;
         }
 
-        // 格式化文本：简单处理换行和代码块
-        function formatText(text) {
-            // 将 \n 转换为 <br>
-            let formatted = text.replace(/\n/g, '<br>');
-            // 简单识别 <code> 标签（如果题目中有代码，已用 <pre><code> 包裹）
-            // 这里为了演示，不做复杂高亮，仅显示
-            return formatted;
+        // 简单的防 XSS 转义（保留换行）
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
         }
 
-        // 切换答案显示
-        function toggleAnswer(header) {
+        // 切换卡片展开/收起
+        function toggleCard(header) {
             const body = header.nextElementSibling;
             const arrow = header.querySelector('.arrow');
-            body.classList.toggle('show');
-            arrow.classList.toggle('open');
+            const isShowing = body.classList.contains('show');
+
+            // 如果已展开则收起，否则展开
+            if (isShowing) {
+                body.classList.remove('show');
+                arrow.classList.remove('open');
+            } else {
+                body.classList.add('show');
+                arrow.classList.add('open');
+            }
         }
 
-        // 切换解析显示
-        function toggleExplanation(header) {
-            const body = header.nextElementSibling;
-            const arrow = header.querySelector('.arrow');
-            body.classList.toggle('show');
-            arrow.classList.toggle('open');
-        }
-
-        // 上一题
+        // --- 导航函数 ---
         function prevQuestion() {
             if (currentIndex > 0) {
                 currentIndex--;
@@ -241,7 +379,6 @@
             }
         }
 
-        // 下一题
         function nextQuestion() {
             if (currentIndex < questions.length - 1) {
                 currentIndex++;
@@ -249,37 +386,53 @@
             }
         }
 
-        // 随机跳转
         function randomQuestion() {
             const randomIndex = Math.floor(Math.random() * questions.length);
             currentIndex = randomIndex;
             renderQuestion();
         }
 
-        // 搜索筛选（可选）：简易实现，点击搜索后过滤并直接显示匹配的第一题
+        // --- 搜索功能 ---
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const keyword = e.target.value.trim().toLowerCase();
             if (keyword === '') {
-                // 恢复全部题目
-                // 重新加载全量？可以保留原数组，这里简化不做
+                // 如果搜索框为空，回到当前题目（或第一题）
+                // 这里简单处理：回到第一题
+                currentIndex = 0;
+                renderQuestion();
                 return;
             }
-            // 搜索匹配
-            const filtered = questions.filter(q => 
-                q.question.toLowerCase().includes(keyword) || 
-                q.answer.toLowerCase().includes(keyword) || 
-                q.explanation.toLowerCase().includes(keyword)
+
+            // 在所有题目中搜索
+            const results = questions.filter(q =>
+                q.question.toLowerCase().includes(keyword) ||
+                (q.answer && q.answer.toLowerCase().includes(keyword)) ||
+                (q.explanation && q.explanation.toLowerCase().includes(keyword))
             );
-            if (filtered.length > 0) {
-                // 跳转到第一个匹配的题目
-                const idx = questions.indexOf(filtered[0]);
+
+            if (results.length > 0) {
+                const idx = questions.indexOf(results[0]);
                 currentIndex = idx;
                 renderQuestion();
             }
         });
 
-        // 页面加载完成后初始化
-        init();
+        // --- 键盘快捷键：左右箭头翻页 ---
+        document.addEventListener('keydown', function(e) {
+            // 如果焦点在输入框内，不触发翻页
+            if (e.target.tagName === 'INPUT') return;
+
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevQuestion();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextQuestion();
+            }
+        });
+
+        // --- 初始化 ---
+        renderQuestion();
     </script>
 </body>
 </html>
