@@ -1,6 +1,6 @@
 # pd-interview-questions
 芯片数字后端面试前刷题
-> 芯片数字后端（Physical Design）面试刷题 · 160+ 高频题 · 含答案与解析
+> 芯片数字后端（Physical Design）面试刷题 · 140+ 高频题 · 含答案与解析
 
 [![pages-build-deployment](https://github.com/Drchjiang/pd-interview-questions/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/Drchjiang/pd-interview-questions/deployments/activity_log?environment=github-pages)
 [![license](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)](LICENSE)
