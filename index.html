@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后端面试刷题</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        /* 顶部信息 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .progress {
+            font-size: 0.9rem;
+            background: #eef2ff;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            background: #4a90d9;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #357abd;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-random {
+            background: #28a745;
+        }
+        .btn-random:hover {
+            background: #218838;
+        }
+        /* 题目区域 */
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+        }
+        .card-header h3 {
+            font-size: 1rem;
+            margin: 0;
+        }
+        .arrow {
+            transition: transform 0.2s;
+        }
+        .arrow.open {
+            transform: rotate(90deg);
+        }
+        .card-body {
+            padding: 15px;
+            display: none;
+        }
+        .card-body.show {
+            display: block;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, monospace;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        /* 底部导航 */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .controls { width: 100%; justify-content: space-between; }
+            .bottom-nav { flex-direction: column; gap: 10px; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="progress" id="progress">当前: 1 / 162</div>
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="prevQuestion()">上一题</button>
+                <button class="btn" onclick="nextQuestion()">下一题</button>
+                <button class="btn btn-random" onclick="randomQuestion()">随机</button>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索题目关键词...">
+        </div>
+
+        <div class="question" id="questionContainer">
+            <!-- 题目内容动态注入 -->
+        </div>
+
+        <div class="bottom-nav">
+            <button class="btn btn-secondary" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn" onclick="nextQuestion()">下一题 →</button>
+        </div>
+    </div>
+    <script src="./questions.js"></script>
+    <script>
+        // 数据已在外部 questions.js 中通过 const questions = [...] 声明，此处直接使用即可
+
+        // 当前索引
+        let currentIndex = 0;
+
+        function init() {
+    // 数据已经在全局变量 questions 中了，直接排序并渲染
+    questions.sort((a, b) => a.id - b.id);
+    renderQuestion();
+         }
+
+        // 渲染当前题目
+        function renderQuestion() {
+            if (questions.length === 0) return;
+            const q = questions[currentIndex];
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <h2>Q${q.id}: ${q.question}</h2>
+                <div class="card">
+                    <div class="card-header" onclick="toggleAnswer(this)">
+                        <h3>答案</h3>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="answer-text">${formatText(q.answer)}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" onclick="toggleExplanation(this)">
+                        <h3>解析</h3>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="explanation-text">${formatText(q.explanation || '暂无解析')}</div>
+                    </div>
+                </div>
+            `;
+            // 更新进度
+            document.getElementById('progress').textContent = `当前: ${currentIndex + 1} / ${questions.length}`;
+        }
+
+        // 格式化文本：简单处理换行和代码块
+        function formatText(text) {
+            // 将 \n 转换为 <br>
+            let formatted = text.replace(/\n/g, '<br>');
+            // 简单识别 <code> 标签（如果题目中有代码，已用 <pre><code> 包裹）
+            // 这里为了演示，不做复杂高亮，仅显示
+            return formatted;
+        }
+
+        // 切换答案显示
+        function toggleAnswer(header) {
+            const body = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            body.classList.toggle('show');
+            arrow.classList.toggle('open');
+        }
+
+        // 切换解析显示
+        function toggleExplanation(header) {
+            const body = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            body.classList.toggle('show');
+            arrow.classList.toggle('open');
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        // 下一题
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        // 随机跳转
+        function randomQuestion() {
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            currentIndex = randomIndex;
+            renderQuestion();
+        }
+
+        // 搜索筛选（可选）：简易实现，点击搜索后过滤并直接显示匹配的第一题
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const keyword = e.target.value.trim().toLowerCase();
+            if (keyword === '') {
+                // 恢复全部题目
+                // 重新加载全量？可以保留原数组，这里简化不做
+                return;
+            }
+            // 搜索匹配
+            const filtered = questions.filter(q => 
+                q.question.toLowerCase().includes(keyword) || 
+                q.answer.toLowerCase().includes(keyword) || 
+                q.explanation.toLowerCase().includes(keyword)
+            );
+            if (filtered.length > 0) {
+                // 跳转到第一个匹配的题目
+                const idx = questions.indexOf(filtered[0]);
+                currentIndex = idx;
+                renderQuestion();
+            }
+        });
+
+        // 页面加载完成后初始化
+        init();
+    </script>
+</body>
+</html>
