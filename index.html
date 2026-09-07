@@ -29,7 +29,6 @@
             --text-secondary: #374151;
             --text-muted: #6b7280;
             --text-light: #4b5563;
-            --text-white: #ffffff;
             --shadow-container: 0 4px 24px rgba(0, 0, 0, 0.04);
             --shadow-mode-btn: 0 1px 4px rgba(0, 0, 0, 0.08);
             --btn-hover-bg: #f3f4f6;
@@ -38,6 +37,8 @@
             --btn-primary-text: #ffffff;
             --arrow-color: #9ca3af;
             --input-focus-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            --social-bg: #f3f4f6;
+            --social-text: #4b5563;
         }
 
         /* 深色主题 */
@@ -69,6 +70,8 @@
             --btn-primary-text: #111827;
             --arrow-color: #6b7280;
             --input-focus-shadow: 0 2px 8px rgba(255, 255, 255, 0.04);
+            --social-bg: #2a2a2a;
+            --social-text: #9ca3af;
         }
 
         /* --- 全局样式 --- */
@@ -196,7 +199,6 @@
             background: var(--btn-primary-hover);
         }
 
-        /* 主题切换按钮（太阳/月亮） */
         .theme-toggle {
             background: transparent;
             border: none;
@@ -360,6 +362,56 @@
             padding: 10px 20px;
         }
 
+        /* --- 社交链接（缩小版） --- */
+        .social-links {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-card);
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            transition: border-color 0.3s;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.15s;
+            background: var(--social-bg);
+            color: var(--social-text);
+            border: 1px solid var(--border-card);
+            line-height: 1.4;
+        }
+
+        .social-link:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+        }
+
+        .social-link.bilibili {
+            background: #00a1d6;
+            color: white;
+            border-color: #00a1d6;
+        }
+
+        .social-link.xiaohongshu {
+            background: #ff2442;
+            color: white;
+            border-color: #ff2442;
+        }
+
+        .social-link .icon {
+            font-size: 14px;
+            line-height: 1;
+        }
+
         /* --- 响应式 --- */
         @media (max-width: 640px) {
             body {
@@ -406,6 +458,16 @@
                 width: 100%;
                 justify-content: center;
             }
+            .social-links {
+                gap: 10px;
+            }
+            .social-link {
+                padding: 4px 12px;
+                font-size: 11px;
+            }
+            .social-link .icon {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -441,11 +503,26 @@
             <button class="btn" id="prevBtnBottom">← 上一题</button>
             <button class="btn btn-primary" id="nextBtnBottom">下一题 →</button>
         </div>
+
+        <!-- 社交链接 -->
+        <div class="social-links">
+            <a href="#" class="social-link bilibili" id="biliLink" target="_blank">
+                <span class="icon">🔵</span> B站 · 当时只道是-寻常-
+            </a>
+            <a href="#" class="social-link xiaohongshu" id="xhsLink" target="_blank">
+                <span class="icon">🔴</span> 小红书 · 寻常小店
+            </a>
+        </div>
     </div>
 
     <script src="./questions.js"></script>
     <script>
         (function() {
+            // ========== 配置区（已填入你的UID） ==========
+            const BILI_UID = '390423616';
+            const XHS_USER_ID = '399682014';
+            // =============================================
+
             // --- 数据初始化 ---
             if (typeof questions === 'undefined') {
                 console.error('questions.js 未加载或 questions 变量不存在');
@@ -454,8 +531,8 @@
             questions.sort((a, b) => a.id - b.id);
 
             let currentIndex = 0;
-            let currentMode = 'quiz'; // 'quiz' 或 'read'
-            let currentTheme = 'light'; // 'light' 或 'dark'
+            let currentMode = 'quiz';
+            let currentTheme = 'light';
 
             // --- DOM 引用 ---
             const container = document.getElementById('questionContainer');
@@ -463,6 +540,8 @@
             const searchInput = document.getElementById('searchInput');
             const modeBtns = document.querySelectorAll('.mode-btn');
             const themeToggle = document.getElementById('themeToggle');
+            const biliLink = document.getElementById('biliLink');
+            const xhsLink = document.getElementById('xhsLink');
 
             // --- 工具函数 ---
             function escapeHtml(text) {
@@ -470,6 +549,26 @@
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML.replace(/\n/g, '<br>');
+            }
+
+            // --- 设置社交链接 ---
+            function setupSocialLinks() {
+                if (BILI_UID) {
+                    biliLink.href = `https://space.bilibili.com/${BILI_UID}`;
+                } else {
+                    biliLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('请设置 B站 UID');
+                    });
+                }
+                if (XHS_USER_ID) {
+                    xhsLink.href = `https://www.xiaohongshu.com/user/profile/${XHS_USER_ID}`;
+                } else {
+                    xhsLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('请设置小红书用户 ID');
+                    });
+                }
             }
 
             // --- 渲染当前题目 ---
@@ -551,7 +650,6 @@
                 setTheme(newTheme);
             }
 
-            // 从 localStorage 恢复主题
             function loadTheme() {
                 const stored = localStorage.getItem('pd-theme');
                 if (stored === 'dark') {
@@ -603,7 +701,6 @@
             }
 
             // --- 事件绑定 ---
-            // 模式切换
             modeBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const mode = this.dataset.mode;
@@ -611,22 +708,18 @@
                 });
             });
 
-            // 主题切换
             themeToggle.addEventListener('click', toggleTheme);
 
-            // 按钮事件
             document.getElementById('prevBtn').addEventListener('click', prevQuestion);
             document.getElementById('nextBtn').addEventListener('click', nextQuestion);
             document.getElementById('randomBtn').addEventListener('click', randomQuestion);
             document.getElementById('prevBtnBottom').addEventListener('click', prevQuestion);
             document.getElementById('nextBtnBottom').addEventListener('click', nextQuestion);
 
-            // 搜索
             searchInput.addEventListener('input', function(e) {
                 handleSearch(this.value);
             });
 
-            // 键盘
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT') return;
                 if (e.key === 'ArrowLeft') {
@@ -639,9 +732,10 @@
             });
 
             // --- 初始化 ---
-            loadTheme();      // 恢复主题
-            setMode('quiz');  // 默认刷题模式
+            loadTheme();
+            setMode('quiz');
             renderQuestion();
+            setupSocialLinks();
         })();
     </script>
 </body>
