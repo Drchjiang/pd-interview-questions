@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
-        /* --- 1. 全局重置与基调 --- */
+        /* --- 全局重置与基调 --- */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +19,6 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fb;
-            /* 温暖的极简白，而非死白 */
             color: #1e1e1e;
             display: flex;
             justify-content: center;
@@ -29,28 +28,30 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 2. 主容器：干净、留白、有边界 --- */
         .container {
             max-width: 880px;
             width: 100%;
             background: #ffffff;
             border-radius: 24px;
-            /* 克制的圆角 */
             padding: 48px 56px;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-            /* 极淡的阴影，而非重阴影 */
             border: 1px solid rgba(0, 0, 0, 0.04);
             height: fit-content;
-            transition: all 0.2s ease;
         }
 
-        /* --- 3. 头部：极简主义导航 --- */
+        /* --- 头部 --- */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
             flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
             gap: 16px;
         }
 
@@ -64,12 +65,42 @@
             letter-spacing: 0.3px;
         }
 
+        .mode-toggle {
+            display: flex;
+            gap: 4px;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 40px;
+        }
+
+        .mode-btn {
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .mode-btn.active {
+            background: #ffffff;
+            color: #111827;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: #111827;
+        }
+
         .controls {
             display: flex;
             gap: 6px;
         }
 
-        /* 按钮：无边框、低饱和、微交互 */
         .btn {
             padding: 8px 16px;
             border: none;
@@ -97,7 +128,7 @@
             background: #374151;
         }
 
-        /* --- 4. 搜索框：融入背景，而非突兀 --- */
+        /* --- 搜索框 --- */
         .search-box {
             margin-bottom: 32px;
         }
@@ -126,7 +157,7 @@
             font-weight: 400;
         }
 
-        /* --- 5. 题目卡片：信息层级清晰，无干扰 --- */
+        /* --- 题目卡片 --- */
         .question {
             margin-bottom: 32px;
         }
@@ -140,7 +171,6 @@
             line-height: 1.4;
         }
 
-        /* 卡片：折叠面板，极简风格 */
         .card {
             border: 1px solid #f0f0f0;
             border-radius: 16px;
@@ -211,9 +241,7 @@
             }
         }
 
-        /* 答案和解析的文本样式 */
-        .answer-text,
-        .explanation-text {
+        .answer-text, .explanation-text {
             white-space: pre-wrap;
             word-break: break-word;
         }
@@ -227,7 +255,7 @@
             border-left: 3px solid #d1d5db;
         }
 
-        /* --- 6. 底部导航：极简分割 --- */
+        /* --- 底部导航 --- */
         .bottom-nav {
             display: flex;
             justify-content: space-between;
@@ -240,7 +268,7 @@
             padding: 10px 20px;
         }
 
-        /* --- 7. 响应式：移动端适配 --- */
+        /* --- 响应式 --- */
         @media (max-width: 640px) {
             body {
                 padding: 16px 12px;
@@ -253,6 +281,10 @@
                 flex-direction: column;
                 align-items: stretch;
                 gap: 12px;
+            }
+            .header-left {
+                justify-content: space-between;
+                flex-wrap: wrap;
             }
             .controls {
                 justify-content: space-between;
@@ -277,6 +309,10 @@
                 justify-content: center;
                 text-align: center;
             }
+            .mode-toggle {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -284,11 +320,17 @@
     <div class="container">
         <!-- 头部 -->
         <div class="header">
-            <div class="progress" id="progress">1 / 162</div>
+            <div class="header-left">
+                <div class="progress" id="progress">1 / 162</div>
+                <div class="mode-toggle" id="modeToggle">
+                    <button class="mode-btn active" data-mode="quiz">刷题模式</button>
+                    <button class="mode-btn" data-mode="read">阅读模式</button>
+                </div>
+            </div>
             <div class="controls">
-                <button class="btn" onclick="prevQuestion()">← 上一题</button>
-                <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
-                <button class="btn" onclick="randomQuestion()">🎲 随机</button>
+                <button class="btn" id="prevBtn">← 上一题</button>
+                <button class="btn btn-primary" id="nextBtn">下一题 →</button>
+                <button class="btn" id="randomBtn">🎲 随机</button>
             </div>
         </div>
 
@@ -302,137 +344,192 @@
 
         <!-- 底部导航 -->
         <div class="bottom-nav">
-            <button class="btn" onclick="prevQuestion()">← 上一题</button>
-            <button class="btn btn-primary" onclick="nextQuestion()">下一题 →</button>
+            <button class="btn" id="prevBtnBottom">← 上一题</button>
+            <button class="btn btn-primary" id="nextBtnBottom">下一题 →</button>
         </div>
     </div>
 
     <script src="./questions.js"></script>
     <script>
-        // --- 数据已在 questions.js 中 ---
-        let currentIndex = 0;
-
-        // 按 id 排序（防止 json 顺序错乱）
-        if (typeof questions !== 'undefined') {
-            questions.sort((a, b) => a.id - b.id);
-        }
-
-        function renderQuestion() {
-            if (!questions || questions.length === 0) return;
-            const q = questions[currentIndex];
-            const container = document.getElementById('questionContainer');
-
-            container.innerHTML = `
-                <h2>${q.id}. ${q.question}</h2>
-                <div class="card">
-                    <div class="card-header" onclick="toggleCard(this)">
-                        <h3>📖 答案</h3>
-                        <span class="arrow">▶</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="answer-text">${escapeHtml(q.answer)}</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header" onclick="toggleCard(this)">
-                        <h3>🔍 解析</h3>
-                        <span class="arrow">▶</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="explanation-text">${escapeHtml(q.explanation || '暂无解析')}</div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('progress').textContent = `${currentIndex + 1} / ${questions.length}`;
-        }
-
-        // 简单的防 XSS 转义（保留换行）
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML.replace(/\n/g, '<br>');
-        }
-
-        // 切换卡片展开/收起
-        function toggleCard(header) {
-            const body = header.nextElementSibling;
-            const arrow = header.querySelector('.arrow');
-            const isShowing = body.classList.contains('show');
-
-            // 如果已展开则收起，否则展开
-            if (isShowing) {
-                body.classList.remove('show');
-                arrow.classList.remove('open');
-            } else {
-                body.classList.add('show');
-                arrow.classList.add('open');
-            }
-        }
-
-        // --- 导航函数 ---
-        function prevQuestion() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                renderQuestion();
-            }
-        }
-
-        function nextQuestion() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                renderQuestion();
-            }
-        }
-
-        function randomQuestion() {
-            const randomIndex = Math.floor(Math.random() * questions.length);
-            currentIndex = randomIndex;
-            renderQuestion();
-        }
-
-        // --- 搜索功能 ---
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const keyword = e.target.value.trim().toLowerCase();
-            if (keyword === '') {
-                // 如果搜索框为空，回到当前题目（或第一题）
-                // 这里简单处理：回到第一题
-                currentIndex = 0;
-                renderQuestion();
+        (function() {
+            // --- 数据初始化 ---
+            if (typeof questions === 'undefined') {
+                console.error('questions.js 未加载或 questions 变量不存在');
                 return;
             }
+            // 按 id 排序
+            questions.sort((a, b) => a.id - b.id);
 
-            // 在所有题目中搜索
-            const results = questions.filter(q =>
-                q.question.toLowerCase().includes(keyword) ||
-                (q.answer && q.answer.toLowerCase().includes(keyword)) ||
-                (q.explanation && q.explanation.toLowerCase().includes(keyword))
-            );
+            let currentIndex = 0;
+            let currentMode = 'quiz'; // 'quiz' 或 'read'
 
-            if (results.length > 0) {
-                const idx = questions.indexOf(results[0]);
-                currentIndex = idx;
+            // --- DOM 引用 ---
+            const container = document.getElementById('questionContainer');
+            const progress = document.getElementById('progress');
+            const searchInput = document.getElementById('searchInput');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+
+            // --- 工具函数 ---
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML.replace(/\n/g, '<br>');
+            }
+
+            // --- 渲染当前题目 ---
+            function renderQuestion() {
+                if (!questions || questions.length === 0) {
+                    container.innerHTML = '<p style="color: #6b7280;">暂无题目数据</p>';
+                    return;
+                }
+                const q = questions[currentIndex];
+                // 根据模式决定是否默认展开
+                const isReadMode = (currentMode === 'read');
+                // 答案卡片
+                const answerShow = isReadMode ? 'show' : '';
+                const answerArrow = isReadMode ? 'open' : '';
+                // 解析卡片
+                const explanationShow = isReadMode ? 'show' : '';
+                const explanationArrow = isReadMode ? 'open' : '';
+
+                container.innerHTML = `
+                    <h2>${q.id}. ${escapeHtml(q.question)}</h2>
+                    <div class="card">
+                        <div class="card-header" data-target="answer">
+                            <h3>📖 答案</h3>
+                            <span class="arrow ${answerArrow}">▶</span>
+                        </div>
+                        <div class="card-body ${answerShow}" data-body="answer">
+                            <div class="answer-text">${escapeHtml(q.answer)}</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" data-target="explanation">
+                            <h3>🔍 解析</h3>
+                            <span class="arrow ${explanationArrow}">▶</span>
+                        </div>
+                        <div class="card-body ${explanationShow}" data-body="explanation">
+                            <div class="explanation-text">${escapeHtml(q.explanation || '暂无解析')}</div>
+                        </div>
+                    </div>
+                `;
+
+                // 更新进度
+                progress.textContent = `${currentIndex + 1} / ${questions.length}`;
+
+                // 绑定卡片点击事件（委托方式）
+                container.querySelectorAll('.card-header').forEach(header => {
+                    header.addEventListener('click', function(e) {
+                        // 切换当前卡片的展开/折叠
+                        const body = this.nextElementSibling;
+                        const arrow = this.querySelector('.arrow');
+                        if (body) {
+                            body.classList.toggle('show');
+                            arrow.classList.toggle('open');
+                        }
+                    });
+                });
+            }
+
+            // --- 切换模式 ---
+            function setMode(mode) {
+                if (mode === currentMode) return;
+                currentMode = mode;
+                // 更新按钮样式
+                modeBtns.forEach(btn => {
+                    const m = btn.dataset.mode;
+                    if (m === mode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                // 重新渲染当前题目（会应用新的默认展开状态）
                 renderQuestion();
             }
-        });
 
-        // --- 键盘快捷键：左右箭头翻页 ---
-        document.addEventListener('keydown', function(e) {
-            // 如果焦点在输入框内，不触发翻页
-            if (e.target.tagName === 'INPUT') return;
-
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                prevQuestion();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                nextQuestion();
+            // --- 导航函数 ---
+            function prevQuestion() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderQuestion();
+                }
             }
-        });
 
-        // --- 初始化 ---
-        renderQuestion();
+            function nextQuestion() {
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    renderQuestion();
+                }
+            }
+
+            function randomQuestion() {
+                const randomIndex = Math.floor(Math.random() * questions.length);
+                currentIndex = randomIndex;
+                renderQuestion();
+            }
+
+            // --- 搜索功能 ---
+            function handleSearch(keyword) {
+                const trimmed = keyword.trim().toLowerCase();
+                if (trimmed === '') {
+                    // 如果清空搜索，回到第一题（或保留当前？这里回到第一题）
+                    currentIndex = 0;
+                    renderQuestion();
+                    return;
+                }
+                const results = questions.filter(q =>
+                    q.question.toLowerCase().includes(trimmed) ||
+                    (q.answer && q.answer.toLowerCase().includes(trimmed)) ||
+                    (q.explanation && q.explanation.toLowerCase().includes(trimmed))
+                );
+                if (results.length > 0) {
+                    const idx = questions.indexOf(results[0]);
+                    currentIndex = idx;
+                    renderQuestion();
+                }
+                // 若无结果，保持当前
+            }
+
+            // --- 事件绑定 ---
+            // 模式切换
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const mode = this.dataset.mode;
+                    setMode(mode);
+                });
+            });
+
+            // 按钮事件（上下、随机）
+            document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+            document.getElementById('randomBtn').addEventListener('click', randomQuestion);
+            document.getElementById('prevBtnBottom').addEventListener('click', prevQuestion);
+            document.getElementById('nextBtnBottom').addEventListener('click', nextQuestion);
+
+            // 搜索输入
+            searchInput.addEventListener('input', function(e) {
+                handleSearch(this.value);
+            });
+
+            // 键盘快捷键（左右箭头翻页，排除输入框）
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT') return;
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevQuestion();
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    nextQuestion();
+                }
+            });
+
+            // --- 初始化 ---
+            // 默认刷题模式
+            setMode('quiz');
+            renderQuestion();
+        })();
     </script>
 </body>
 </html>
