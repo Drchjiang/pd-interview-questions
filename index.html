@@ -4,12 +4,74 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PD 后端面试 · 刷题</title>
-    <!-- 使用更优雅的字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
-        /* --- 全局重置与基调 --- */
+        /* --- CSS 变量（主题） --- */
+        :root {
+            --bg-body: #f8f9fb;
+            --bg-container: #ffffff;
+            --bg-card: #fcfcfd;
+            --bg-card-hover: #f8f9fa;
+            --bg-progress: #f3f4f6;
+            --bg-mode-toggle: #f3f4f6;
+            --bg-mode-btn-active: #ffffff;
+            --bg-search: #fafafa;
+            --bg-search-focus: #ffffff;
+            --bg-explanation: #f9fafb;
+            --border-container: rgba(0, 0, 0, 0.04);
+            --border-card: #f0f0f0;
+            --border-card-hover: #e5e7eb;
+            --border-search: #e5e7eb;
+            --border-explanation: #d1d5db;
+            --text-primary: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --text-light: #4b5563;
+            --text-white: #ffffff;
+            --shadow-container: 0 4px 24px rgba(0, 0, 0, 0.04);
+            --shadow-mode-btn: 0 1px 4px rgba(0, 0, 0, 0.08);
+            --btn-hover-bg: #f3f4f6;
+            --btn-primary-bg: #111827;
+            --btn-primary-hover: #374151;
+            --btn-primary-text: #ffffff;
+            --arrow-color: #9ca3af;
+            --input-focus-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        /* 深色主题 */
+        [data-theme="dark"] {
+            --bg-body: #0a0a0a;
+            --bg-container: #141414;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #242424;
+            --bg-progress: #2a2a2a;
+            --bg-mode-toggle: #2a2a2a;
+            --bg-mode-btn-active: #3a3a3a;
+            --bg-search: #1a1a1a;
+            --bg-search-focus: #242424;
+            --bg-explanation: #1f1f1f;
+            --border-container: rgba(255, 255, 255, 0.06);
+            --border-card: #2a2a2a;
+            --border-card-hover: #3a3a3a;
+            --border-search: #2a2a2a;
+            --border-explanation: #3a3a3a;
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            --text-light: #9ca3af;
+            --shadow-container: 0 4px 24px rgba(0, 0, 0, 0.6);
+            --shadow-mode-btn: 0 1px 4px rgba(0, 0, 0, 0.4);
+            --btn-hover-bg: #2a2a2a;
+            --btn-primary-bg: #f3f4f6;
+            --btn-primary-hover: #ffffff;
+            --btn-primary-text: #111827;
+            --arrow-color: #6b7280;
+            --input-focus-shadow: 0 2px 8px rgba(255, 255, 255, 0.04);
+        }
+
+        /* --- 全局样式 --- */
         * {
             margin: 0;
             padding: 0;
@@ -18,25 +80,27 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8f9fb;
-            color: #1e1e1e;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             padding: 40px 20px;
             min-height: 100vh;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
             max-width: 880px;
             width: 100%;
-            background: #ffffff;
+            background: var(--bg-container);
             border-radius: 24px;
             padding: 48px 56px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: var(--shadow-container);
+            border: 1px solid var(--border-container);
             height: fit-content;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* --- 头部 --- */
@@ -53,24 +117,27 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex-wrap: wrap;
         }
 
         .progress {
             font-size: 13px;
             font-weight: 500;
-            color: #6b7280;
-            background: #f3f4f6;
+            color: var(--text-muted);
+            background: var(--bg-progress);
             padding: 4px 14px;
             border-radius: 40px;
             letter-spacing: 0.3px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .mode-toggle {
             display: flex;
             gap: 4px;
-            background: #f3f4f6;
+            background: var(--bg-mode-toggle);
             padding: 4px;
             border-radius: 40px;
+            transition: background-color 0.3s;
         }
 
         .mode-btn {
@@ -80,24 +147,25 @@
             border-radius: 30px;
             font-size: 13px;
             font-weight: 500;
-            color: #6b7280;
+            color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
         }
 
         .mode-btn.active {
-            background: #ffffff;
-            color: #111827;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            background: var(--bg-mode-btn-active);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-mode-btn);
         }
 
         .mode-btn:hover:not(.active) {
-            color: #111827;
+            color: var(--text-primary);
         }
 
         .controls {
             display: flex;
+            align-items: center;
             gap: 6px;
         }
 
@@ -105,7 +173,7 @@
             padding: 8px 16px;
             border: none;
             background: transparent;
-            color: #4b5563;
+            color: var(--text-light);
             border-radius: 8px;
             font-size: 13px;
             font-weight: 500;
@@ -115,17 +183,35 @@
         }
 
         .btn:hover {
-            background: #f3f4f6;
-            color: #111827;
+            background: var(--btn-hover-bg);
+            color: var(--text-primary);
         }
 
         .btn-primary {
-            background: #111827;
-            color: white;
+            background: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
         }
 
         .btn-primary:hover {
-            background: #374151;
+            background: var(--btn-primary-hover);
+        }
+
+        /* 主题切换按钮（太阳/月亮） */
+        .theme-toggle {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: background 0.2s, transform 0.2s;
+            line-height: 1;
+            color: var(--text-muted);
+        }
+
+        .theme-toggle:hover {
+            background: var(--btn-hover-bg);
+            transform: scale(1.05);
         }
 
         /* --- 搜索框 --- */
@@ -136,24 +222,24 @@
         .search-box input {
             width: 100%;
             padding: 12px 18px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-search);
             border-radius: 12px;
             font-size: 14px;
-            background: #fafafa;
-            transition: border 0.2s, box-shadow 0.2s;
+            background: var(--bg-search);
+            transition: border 0.2s, box-shadow 0.2s, background 0.3s;
             font-family: inherit;
-            color: #1f2937;
+            color: var(--text-primary);
         }
 
         .search-box input:focus {
             outline: none;
             border-color: #9ca3af;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            background: var(--bg-search-focus);
+            box-shadow: var(--input-focus-shadow);
         }
 
         .search-box input::placeholder {
-            color: #9ca3af;
+            color: var(--text-muted);
             font-weight: 400;
         }
 
@@ -165,23 +251,24 @@
         .question h2 {
             font-size: 20px;
             font-weight: 600;
-            color: #111827;
+            color: var(--text-primary);
             margin-bottom: 24px;
             letter-spacing: -0.3px;
             line-height: 1.4;
+            transition: color 0.3s;
         }
 
         .card {
-            border: 1px solid #f0f0f0;
+            border: 1px solid var(--border-card);
             border-radius: 16px;
             margin-bottom: 12px;
             overflow: hidden;
-            background: #fcfcfd;
-            transition: border 0.2s;
+            background: var(--bg-card);
+            transition: border-color 0.2s, background 0.3s;
         }
 
         .card:hover {
-            border-color: #e5e7eb;
+            border-color: var(--border-card-hover);
         }
 
         .card-header {
@@ -193,24 +280,25 @@
             align-items: center;
             font-weight: 500;
             font-size: 14px;
-            color: #4b5563;
-            transition: background 0.15s;
+            color: var(--text-light);
+            transition: background 0.15s, color 0.3s;
         }
 
         .card-header:hover {
-            background: #f8f9fa;
+            background: var(--bg-card-hover);
         }
 
         .card-header h3 {
             font-size: 14px;
             font-weight: 500;
-            color: #1f2937;
+            color: var(--text-primary);
+            transition: color 0.3s;
         }
 
         .arrow {
             transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 12px;
-            color: #9ca3af;
+            color: var(--arrow-color);
         }
 
         .arrow.open {
@@ -220,9 +308,10 @@
         .card-body {
             padding: 0 20px 20px 20px;
             display: none;
-            color: #374151;
+            color: var(--text-secondary);
             font-size: 14px;
             line-height: 1.7;
+            transition: color 0.3s;
         }
 
         .card-body.show {
@@ -241,18 +330,20 @@
             }
         }
 
-        .answer-text, .explanation-text {
+        .answer-text,
+        .explanation-text {
             white-space: pre-wrap;
             word-break: break-word;
         }
 
         .explanation-text {
-            color: #4b5563;
+            color: var(--text-secondary);
             font-size: 13.5px;
-            background: #f9fafb;
+            background: var(--bg-explanation);
             padding: 16px 20px;
             border-radius: 12px;
-            border-left: 3px solid #d1d5db;
+            border-left: 3px solid var(--border-explanation);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
         }
 
         /* --- 底部导航 --- */
@@ -261,7 +352,8 @@
             justify-content: space-between;
             margin-top: 8px;
             padding-top: 24px;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid var(--border-card);
+            transition: border-color 0.3s;
         }
 
         .bottom-nav .btn {
@@ -288,6 +380,7 @@
             }
             .controls {
                 justify-content: space-between;
+                flex-wrap: wrap;
             }
             .question h2 {
                 font-size: 17px;
@@ -328,6 +421,7 @@
                 </div>
             </div>
             <div class="controls">
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">☀️</button>
                 <button class="btn" id="prevBtn">← 上一题</button>
                 <button class="btn btn-primary" id="nextBtn">下一题 →</button>
                 <button class="btn" id="randomBtn">🎲 随机</button>
@@ -357,17 +451,18 @@
                 console.error('questions.js 未加载或 questions 变量不存在');
                 return;
             }
-            // 按 id 排序
             questions.sort((a, b) => a.id - b.id);
 
             let currentIndex = 0;
             let currentMode = 'quiz'; // 'quiz' 或 'read'
+            let currentTheme = 'light'; // 'light' 或 'dark'
 
             // --- DOM 引用 ---
             const container = document.getElementById('questionContainer');
             const progress = document.getElementById('progress');
             const searchInput = document.getElementById('searchInput');
             const modeBtns = document.querySelectorAll('.mode-btn');
+            const themeToggle = document.getElementById('themeToggle');
 
             // --- 工具函数 ---
             function escapeHtml(text) {
@@ -380,16 +475,13 @@
             // --- 渲染当前题目 ---
             function renderQuestion() {
                 if (!questions || questions.length === 0) {
-                    container.innerHTML = '<p style="color: #6b7280;">暂无题目数据</p>';
+                    container.innerHTML = '<p style="color: var(--text-muted);">暂无题目数据</p>';
                     return;
                 }
                 const q = questions[currentIndex];
-                // 根据模式决定是否默认展开
                 const isReadMode = (currentMode === 'read');
-                // 答案卡片
                 const answerShow = isReadMode ? 'show' : '';
                 const answerArrow = isReadMode ? 'open' : '';
-                // 解析卡片
                 const explanationShow = isReadMode ? 'show' : '';
                 const explanationArrow = isReadMode ? 'open' : '';
 
@@ -415,13 +507,11 @@
                     </div>
                 `;
 
-                // 更新进度
                 progress.textContent = `${currentIndex + 1} / ${questions.length}`;
 
-                // 绑定卡片点击事件（委托方式）
+                // 绑定卡片点击事件
                 container.querySelectorAll('.card-header').forEach(header => {
                     header.addEventListener('click', function(e) {
-                        // 切换当前卡片的展开/折叠
                         const body = this.nextElementSibling;
                         const arrow = this.querySelector('.arrow');
                         if (body) {
@@ -432,11 +522,10 @@
                 });
             }
 
-            // --- 切换模式 ---
+            // --- 模式切换 ---
             function setMode(mode) {
                 if (mode === currentMode) return;
                 currentMode = mode;
-                // 更新按钮样式
                 modeBtns.forEach(btn => {
                     const m = btn.dataset.mode;
                     if (m === mode) {
@@ -445,8 +534,31 @@
                         btn.classList.remove('active');
                     }
                 });
-                // 重新渲染当前题目（会应用新的默认展开状态）
                 renderQuestion();
+            }
+
+            // --- 主题切换 ---
+            function setTheme(theme) {
+                if (theme === currentTheme) return;
+                currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+                themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+                localStorage.setItem('pd-theme', theme);
+            }
+
+            function toggleTheme() {
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            }
+
+            // 从 localStorage 恢复主题
+            function loadTheme() {
+                const stored = localStorage.getItem('pd-theme');
+                if (stored === 'dark') {
+                    setTheme('dark');
+                } else {
+                    setTheme('light');
+                }
             }
 
             // --- 导航函数 ---
@@ -474,7 +586,6 @@
             function handleSearch(keyword) {
                 const trimmed = keyword.trim().toLowerCase();
                 if (trimmed === '') {
-                    // 如果清空搜索，回到第一题（或保留当前？这里回到第一题）
                     currentIndex = 0;
                     renderQuestion();
                     return;
@@ -489,7 +600,6 @@
                     currentIndex = idx;
                     renderQuestion();
                 }
-                // 若无结果，保持当前
             }
 
             // --- 事件绑定 ---
@@ -501,19 +611,22 @@
                 });
             });
 
-            // 按钮事件（上下、随机）
+            // 主题切换
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // 按钮事件
             document.getElementById('prevBtn').addEventListener('click', prevQuestion);
             document.getElementById('nextBtn').addEventListener('click', nextQuestion);
             document.getElementById('randomBtn').addEventListener('click', randomQuestion);
             document.getElementById('prevBtnBottom').addEventListener('click', prevQuestion);
             document.getElementById('nextBtnBottom').addEventListener('click', nextQuestion);
 
-            // 搜索输入
+            // 搜索
             searchInput.addEventListener('input', function(e) {
                 handleSearch(this.value);
             });
 
-            // 键盘快捷键（左右箭头翻页，排除输入框）
+            // 键盘
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT') return;
                 if (e.key === 'ArrowLeft') {
@@ -526,8 +639,8 @@
             });
 
             // --- 初始化 ---
-            // 默认刷题模式
-            setMode('quiz');
+            loadTheme();      // 恢复主题
+            setMode('quiz');  // 默认刷题模式
             renderQuestion();
         })();
     </script>
