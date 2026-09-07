@@ -39,6 +39,8 @@
             --input-focus-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
             --social-bg: #f3f4f6;
             --social-text: #4b5563;
+            --favorite-color: #f59e0b;
+            --favorite-bg: #fef3c7;
         }
 
         /* 深色主题 */
@@ -72,6 +74,8 @@
             --input-focus-shadow: 0 2px 8px rgba(255, 255, 255, 0.04);
             --social-bg: #2a2a2a;
             --social-text: #9ca3af;
+            --favorite-color: #fbbf24;
+            --favorite-bg: #2a1f0a;
         }
 
         /* --- 全局样式 --- */
@@ -119,7 +123,7 @@
         .header-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
@@ -144,11 +148,11 @@
         }
 
         .mode-btn {
-            padding: 6px 16px;
+            padding: 6px 14px;
             border: none;
             background: transparent;
             border-radius: 30px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-muted);
             cursor: pointer;
@@ -197,6 +201,27 @@
 
         .btn-primary:hover {
             background: var(--btn-primary-hover);
+        }
+
+        .btn-fav-filter {
+            background: transparent;
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-fav-filter.active {
+            background: var(--favorite-color);
+            color: #fff;
+            border-color: var(--favorite-color);
+        }
+
+        .btn-fav-filter:hover:not(.active) {
+            border-color: var(--text-muted);
         }
 
         .theme-toggle {
@@ -250,14 +275,42 @@
             margin-bottom: 32px;
         }
 
-        .question h2 {
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+
+        .question-header h2 {
             font-size: 20px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 24px;
             letter-spacing: -0.3px;
             line-height: 1.4;
             transition: color 0.3s;
+            flex: 1;
+        }
+
+        .fav-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s, transform 0.15s;
+            line-height: 1;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .fav-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .fav-btn.active {
+            color: var(--favorite-color);
         }
 
         .card {
@@ -362,6 +415,20 @@
             padding: 10px 20px;
         }
 
+        .shortcut-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            letter-spacing: 0.3px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .shortcut-hint:hover {
+            opacity: 1;
+        }
+
         /* --- 社交链接 --- */
         .social-links {
             margin-top: 24px;
@@ -434,7 +501,10 @@
                 justify-content: space-between;
                 flex-wrap: wrap;
             }
-            .question h2 {
+            .question-header {
+                flex-wrap: wrap;
+            }
+            .question-header h2 {
                 font-size: 17px;
             }
             .card-header {
@@ -468,6 +538,10 @@
             .social-link .icon {
                 font-size: 12px;
             }
+            .btn-fav-filter {
+                font-size: 12px;
+                padding: 2px 12px;
+            }
         }
     </style>
 </head>
@@ -478,9 +552,11 @@
             <div class="header-left">
                 <div class="progress" id="progress">1 / 162</div>
                 <div class="mode-toggle" id="modeToggle">
-                    <button class="mode-btn active" data-mode="quiz">刷题模式</button>
-                    <button class="mode-btn" data-mode="read">阅读模式</button>
+                    <button class="mode-btn active" data-mode="quiz">刷题</button>
+                    <button class="mode-btn" data-mode="read">阅读</button>
+                    <button class="mode-btn" data-mode="random">随机</button>
                 </div>
+                <button class="btn-fav-filter" id="favFilterBtn">⭐ 收藏</button>
             </div>
             <div class="controls">
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">☀️</button>
@@ -503,6 +579,7 @@
             <button class="btn" id="prevBtnBottom">← 上一题</button>
             <button class="btn btn-primary" id="nextBtnBottom">下一题 →</button>
         </div>
+        <div class="shortcut-hint">←  →  方向键翻页</div>
 
         <!-- 社交链接 -->
         <div class="social-links">
@@ -529,10 +606,15 @@
                 return;
             }
             questions.sort((a, b) => a.id - b.id);
+            const total = questions.length;
 
+            // --- 状态 ---
             let currentIndex = 0;
-            let currentMode = 'quiz';
+            let currentMode = 'quiz';      // 'quiz' | 'read' | 'random'
             let currentTheme = 'light';
+            let sequentialIndex = 0;        // 顺序模式下的索引，用于切换回顺序
+            let favorites = new Set();      // 存储收藏的题目 id
+            let isFavFilterActive = false;  // 是否只看收藏
 
             // --- DOM 引用 ---
             const container = document.getElementById('questionContainer');
@@ -540,6 +622,7 @@
             const searchInput = document.getElementById('searchInput');
             const modeBtns = document.querySelectorAll('.mode-btn');
             const themeToggle = document.getElementById('themeToggle');
+            const favFilterBtn = document.getElementById('favFilterBtn');
             const biliLink = document.getElementById('biliLink');
             const xhsLink = document.getElementById('xhsLink');
 
@@ -551,41 +634,127 @@
                 return div.innerHTML.replace(/\n/g, '<br>');
             }
 
+            // --- 收藏操作 ---
+            function loadFavorites() {
+                try {
+                    const stored = localStorage.getItem('pd-favorites');
+                    if (stored) {
+                        const arr = JSON.parse(stored);
+                        favorites = new Set(arr);
+                    }
+                } catch (e) {}
+            }
+
+            function saveFavorites() {
+                localStorage.setItem('pd-favorites', JSON.stringify([...favorites]));
+            }
+
+            function toggleFavorite(id) {
+                if (favorites.has(id)) {
+                    favorites.delete(id);
+                } else {
+                    favorites.add(id);
+                }
+                saveFavorites();
+                // 重新渲染当前题目（更新星标状态）
+                renderQuestion();
+                // 如果收藏筛选激活，可能需要重新筛选列表，但这里保持简单，只刷新显示
+                if (isFavFilterActive) {
+                    // 如果当前收藏筛选激活，但移除收藏后可能无题，我们让 render 处理空状态
+                    renderQuestion(); // 但 renderQuestion 会基于 currentIndex 渲染，如果当前题被取消收藏且筛选激活，应该跳转
+                    // 更好的是在 render 中处理，但为了简单，我们在取消收藏时如果筛选激活，检查当前题是否还在收藏中，不在则跳到第一个收藏
+                    if (isFavFilterActive && !favorites.has(questions[currentIndex].id)) {
+                        // 跳到第一个收藏
+                        const favIds = [...favorites];
+                        if (favIds.length > 0) {
+                            const firstFav = questions.find(q => favIds.includes(q.id));
+                            if (firstFav) {
+                                currentIndex = questions.indexOf(firstFav);
+                                renderQuestion();
+                            } else {
+                                // 没有收藏，显示空状态
+                                renderQuestion();
+                            }
+                        } else {
+                            renderQuestion();
+                        }
+                    }
+                }
+            }
+
+            // --- 进度记忆 ---
+            function saveProgress(index) {
+                localStorage.setItem('pd-progress', String(index));
+            }
+
+            function loadProgress() {
+                const stored = localStorage.getItem('pd-progress');
+                if (stored !== null) {
+                    const idx = parseInt(stored, 10);
+                    if (!isNaN(idx) && idx >= 0 && idx < total) {
+                        return idx;
+                    }
+                }
+                return 0;
+            }
+
             // --- 设置社交链接 ---
             function setupSocialLinks() {
                 if (BILI_UID) {
                     biliLink.href = `https://space.bilibili.com/${BILI_UID}`;
-                } else {
-                    biliLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        alert('请设置 B站 UID');
-                    });
                 }
                 if (XHS_USER_ID) {
                     xhsLink.href = `https://www.xiaohongshu.com/user/profile/${XHS_USER_ID}`;
-                } else {
-                    xhsLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        alert('请设置小红书用户 ID');
-                    });
                 }
+            }
+
+            // --- 获取当前有效题目列表（考虑收藏筛选） ---
+            function getCurrentQuestions() {
+                if (isFavFilterActive) {
+                    return questions.filter(q => favorites.has(q.id));
+                }
+                return questions;
             }
 
             // --- 渲染当前题目 ---
             function renderQuestion() {
-                if (!questions || questions.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-muted);">暂无题目数据</p>';
+                const currentQuestions = getCurrentQuestions();
+                if (currentQuestions.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
+                            <p style="font-size:18px;margin-bottom:8px;">📭 暂无收藏题目</p>
+                            <p style="font-size:14px;">点击题目旁的 ☆ 即可收藏</p>
+                        </div>
+                    `;
+                    progress.textContent = `0 / 0`;
                     return;
                 }
-                const q = questions[currentIndex];
+
+                // 确保 currentIndex 在有效范围内
+                if (currentIndex >= currentQuestions.length) {
+                    currentIndex = currentQuestions.length - 1;
+                }
+                if (currentIndex < 0) currentIndex = 0;
+
+                const q = currentQuestions[currentIndex];
+                const realId = q.id; // 原题 id
+
                 const isReadMode = (currentMode === 'read');
-                const answerShow = isReadMode ? 'show' : '';
-                const answerArrow = isReadMode ? 'open' : '';
-                const explanationShow = isReadMode ? 'show' : '';
-                const explanationArrow = isReadMode ? 'open' : '';
+                // 随机模式下强制折叠（刷题模式）
+                const isRandomMode = (currentMode === 'random');
+                const defaultExpanded = (isReadMode && !isRandomMode);
+                const answerShow = defaultExpanded ? 'show' : '';
+                const answerArrow = defaultExpanded ? 'open' : '';
+                const explanationShow = defaultExpanded ? 'show' : '';
+                const explanationArrow = defaultExpanded ? 'open' : '';
+
+                const isFav = favorites.has(realId);
 
                 container.innerHTML = `
-                    <h2>${q.id}. ${escapeHtml(q.question)}</h2>
+                    <div class="question-header">
+                        <h2>${q.id}. ${escapeHtml(q.question)}</h2>
+                        <button class="fav-btn ${isFav ? 'active' : ''}" data-id="${q.id}" aria-label="收藏">${isFav ? '★' : '☆'}</button>
+                    </div>
                     <div class="card">
                         <div class="card-header" data-target="answer">
                             <h3>📖 答案</h3>
@@ -606,7 +775,21 @@
                     </div>
                 `;
 
-                progress.textContent = `${currentIndex + 1} / ${questions.length}`;
+                progress.textContent = `${currentIndex + 1} / ${currentQuestions.length}`;
+                // 保存进度（只保存顺序模式下的索引，随机模式下保存顺序索引）
+                if (currentMode !== 'random') {
+                    saveProgress(currentIndex);
+                }
+
+                // 绑定收藏按钮事件
+                const favBtn = container.querySelector('.fav-btn');
+                if (favBtn) {
+                    favBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id, 10);
+                        toggleFavorite(id);
+                    });
+                }
 
                 // 绑定卡片点击事件
                 container.querySelectorAll('.card-header').forEach(header => {
@@ -619,12 +802,36 @@
                         }
                     });
                 });
+
+                // 更新收藏筛选按钮状态
+                favFilterBtn.classList.toggle('active', isFavFilterActive);
             }
 
             // --- 模式切换 ---
             function setMode(mode) {
-                if (mode === currentMode) return;
+                if (mode === currentMode && mode !== 'random') return;
+                // 如果切换到随机模式，保存当前顺序索引
+                if (mode === 'random') {
+                    sequentialIndex = currentIndex;
+                    // 随机选一题
+                    const currentQuestions = getCurrentQuestions();
+                    if (currentQuestions.length > 0) {
+                        const randomIdx = Math.floor(Math.random() * currentQuestions.length);
+                        currentIndex = randomIdx;
+                    }
+                } else {
+                    // 从随机切换到顺序，恢复 sequentialIndex
+                    if (currentMode === 'random') {
+                        // 如果之前是随机模式，恢复到 sequentialIndex
+                        const currentQuestions = getCurrentQuestions();
+                        if (currentQuestions.length > 0) {
+                            const targetIdx = Math.min(sequentialIndex, currentQuestions.length - 1);
+                            currentIndex = targetIdx;
+                        }
+                    }
+                }
                 currentMode = mode;
+                // 更新按钮状态
                 modeBtns.forEach(btn => {
                     const m = btn.dataset.mode;
                     if (m === mode) {
@@ -633,6 +840,7 @@
                         btn.classList.remove('active');
                     }
                 });
+                // 如果切换到随机模式，保存当前索引为顺序索引？不用，上面已处理
                 renderQuestion();
             }
 
@@ -660,23 +868,42 @@
             }
 
             // --- 导航函数 ---
-            function prevQuestion() {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    renderQuestion();
+            function getNextIndex(delta) {
+                const currentQuestions = getCurrentQuestions();
+                if (currentQuestions.length === 0) return 0;
+                let newIdx = currentIndex + delta;
+                if (newIdx < 0) newIdx = currentQuestions.length - 1;
+                if (newIdx >= currentQuestions.length) newIdx = 0;
+                return newIdx;
+            }
+
+            function navigate(delta) {
+                if (currentMode === 'random') {
+                    // 随机模式：随机跳转
+                    const currentQuestions = getCurrentQuestions();
+                    if (currentQuestions.length === 0) return;
+                    const randomIdx = Math.floor(Math.random() * currentQuestions.length);
+                    currentIndex = randomIdx;
+                } else {
+                    const newIdx = getNextIndex(delta);
+                    currentIndex = newIdx;
                 }
+                renderQuestion();
+            }
+
+            function prevQuestion() {
+                navigate(-1);
             }
 
             function nextQuestion() {
-                if (currentIndex < questions.length - 1) {
-                    currentIndex++;
-                    renderQuestion();
-                }
+                navigate(1);
             }
 
             function randomQuestion() {
-                const randomIndex = Math.floor(Math.random() * questions.length);
-                currentIndex = randomIndex;
+                const currentQuestions = getCurrentQuestions();
+                if (currentQuestions.length === 0) return;
+                const randomIdx = Math.floor(Math.random() * currentQuestions.length);
+                currentIndex = randomIdx;
                 renderQuestion();
             }
 
@@ -684,23 +911,66 @@
             function handleSearch(keyword) {
                 const trimmed = keyword.trim().toLowerCase();
                 if (trimmed === '') {
-                    currentIndex = 0;
+                    // 清空搜索，恢复当前模式下的正常显示
+                    // 如果当前是随机模式，保持随机
+                    if (currentMode === 'random') {
+                        // 随机选一题
+                        const currentQuestions = getCurrentQuestions();
+                        if (currentQuestions.length > 0) {
+                            const randomIdx = Math.floor(Math.random() * currentQuestions.length);
+                            currentIndex = randomIdx;
+                        }
+                    } else {
+                        // 回到顺序索引
+                        const currentQuestions = getCurrentQuestions();
+                        if (currentQuestions.length > 0) {
+                            currentIndex = Math.min(sequentialIndex, currentQuestions.length - 1);
+                        }
+                    }
                     renderQuestion();
                     return;
                 }
+                // 在所有题目中搜索（忽略收藏筛选）
                 const results = questions.filter(q =>
                     q.question.toLowerCase().includes(trimmed) ||
                     (q.answer && q.answer.toLowerCase().includes(trimmed)) ||
                     (q.explanation && q.explanation.toLowerCase().includes(trimmed))
                 );
                 if (results.length > 0) {
-                    const idx = questions.indexOf(results[0]);
-                    currentIndex = idx;
-                    renderQuestion();
+                    // 如果当前有收藏筛选，搜索只在收藏范围内？
+                    // 更合理：搜索应该在全题库，但跳转时如果收藏筛选激活，则跳转到收藏中匹配的第一题
+                    let targetQuestions = getCurrentQuestions();
+                    let targetResult = results.filter(q => targetQuestions.includes(q));
+                    if (targetResult.length === 0) {
+                        // 如果收藏筛选下没有匹配，则提示
+                        alert('未找到匹配的题目');
+                        return;
+                    }
+                    const q = targetResult[0];
+                    const idx = targetQuestions.indexOf(q);
+                    if (idx !== -1) {
+                        currentIndex = idx;
+                        renderQuestion();
+                    }
                 }
             }
 
+            // --- 收藏筛选切换 ---
+            function toggleFavFilter() {
+                isFavFilterActive = !isFavFilterActive;
+                favFilterBtn.classList.toggle('active', isFavFilterActive);
+                // 切换后，重置索引到第一个
+                const currentQuestions = getCurrentQuestions();
+                if (currentQuestions.length > 0) {
+                    currentIndex = 0;
+                } else {
+                    currentIndex = 0;
+                }
+                renderQuestion();
+            }
+
             // --- 事件绑定 ---
+            // 模式切换
             modeBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const mode = this.dataset.mode;
@@ -708,18 +978,25 @@
                 });
             });
 
+            // 主题切换
             themeToggle.addEventListener('click', toggleTheme);
 
+            // 导航
             document.getElementById('prevBtn').addEventListener('click', prevQuestion);
             document.getElementById('nextBtn').addEventListener('click', nextQuestion);
             document.getElementById('randomBtn').addEventListener('click', randomQuestion);
             document.getElementById('prevBtnBottom').addEventListener('click', prevQuestion);
             document.getElementById('nextBtnBottom').addEventListener('click', nextQuestion);
 
+            // 收藏筛选
+            favFilterBtn.addEventListener('click', toggleFavFilter);
+
+            // 搜索
             searchInput.addEventListener('input', function(e) {
                 handleSearch(this.value);
             });
 
+            // 键盘
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT') return;
                 if (e.key === 'ArrowLeft') {
@@ -733,7 +1010,24 @@
 
             // --- 初始化 ---
             loadTheme();
-            setMode('quiz');
+            loadFavorites();
+            // 加载进度
+            const savedIdx = loadProgress();
+            // 默认模式 quiz
+            currentMode = 'quiz';
+            // 设置按钮高亮
+            document.querySelector('.mode-btn[data-mode="quiz"]').classList.add('active');
+            // 设置顺序索引
+            sequentialIndex = savedIdx;
+            currentIndex = savedIdx;
+            // 如果收藏筛选默认关闭
+            isFavFilterActive = false;
+            favFilterBtn.classList.remove('active');
+            // 确保索引不越界
+            const totalQ = getCurrentQuestions().length;
+            if (totalQ > 0 && currentIndex >= totalQ) {
+                currentIndex = totalQ - 1;
+            }
             renderQuestion();
             setupSocialLinks();
         })();
